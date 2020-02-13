@@ -65,8 +65,7 @@ public class QuoteController {
     Quote quote = get(id);
     quote.setText(modifiedQuote);
     quoteRepository.save(quote);
-    return quote.getText();
-  }
+    return quote.getText();  }
 
   @DeleteMapping(value = "{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
