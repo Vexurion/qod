@@ -1,8 +1,10 @@
 package edu.cnm.deepdive.qod.model.entity;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -66,15 +68,11 @@ public class Quote {
   )
 
   @JoinTable(
-      joinColumns = {
-          @JoinColumn(name = "quote_id")
-      },
-      inverseJoinColumns = {
-          @JoinColumn(name = "source_id")
-      }
+      joinColumns = @JoinColumn(name = "quote_id"),
+      inverseJoinColumns = @JoinColumn(name = "source_id")
   )
   @OrderBy("name ASC")
-  private List<Source> sources = new LinkedList<>();
+  private Set<Source> sources = new LinkedHashSet<>();
 
   @NonNull
   public UUID getId() {
@@ -101,7 +99,7 @@ public class Quote {
   }
 
   @NonNull
-  public List<Source> getSources() {
+  public Set<Source> getSources() {
     return sources;
   }
 }
