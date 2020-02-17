@@ -87,8 +87,6 @@ public class Source {
     return quotes;
   }
 
-
-
   @Override
   public int hashCode() {
     return 31 * id.hashCode() + name.hashCode();
