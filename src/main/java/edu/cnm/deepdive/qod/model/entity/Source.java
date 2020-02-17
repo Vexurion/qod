@@ -1,8 +1,12 @@
 package edu.cnm.deepdive.qod.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import edu.cnm.deepdive.qod.view.FlatQuote;
+import edu.cnm.deepdive.qod.view.FlatSource;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.CascadeType;
@@ -13,6 +17,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -23,11 +29,11 @@ import org.springframework.lang.NonNull;
 
 @Entity
 @Table(
-    indexes =  {
+    indexes = {
         @Index(columnList = "created")
     }
 )
-public class Source {
+public class Source implements FlatSource {
 
   @NonNull
   @Id
@@ -46,34 +52,36 @@ public class Source {
   @NonNull
   @UpdateTimestamp
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(nullable = false) //for the database... object reference type = false
+  @Column(nullable = false)
   private Date updated;
 
   @NonNull
-  @Column(length = 1069, nullable = false, unique = true)
+  @Column(length = 1024, nullable = false, unique = true)
   private String name;
 
-  @JsonIgnore
-  @ManyToMany(fetch = FetchType.LAZY, mappedBy = "sources",
-      cascade = {CascadeType.DETACH,CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  @NonNull
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "source",
+      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  @OrderBy("text ASC")
+  @JsonSerialize(contentAs = FlatQuote.class)
   private Set<Quote> quotes = new LinkedHashSet<>();
 
-  @NonNull
+  @Override
   public UUID getId() {
     return id;
   }
 
-  @NonNull
+  @Override
   public Date getCreated() {
     return created;
   }
 
-  @NonNull
+  @Override
   public Date getUpdated() {
     return updated;
   }
 
-  @NonNull
+  @Override
   public String getName() {
     return name;
   }
@@ -81,7 +89,6 @@ public class Source {
   public void setName(@NonNull String name) {
     this.name = name;
   }
-  //TODO Update hash code.
 
   public Set<Quote> getQuotes() {
     return quotes;
@@ -89,8 +96,7 @@ public class Source {
 
   @Override
   public int hashCode() {
-    return 31 * id.hashCode() + name.hashCode();
-    // TODO Use pre-computed hash code.
+    return Objects.hash(id, name); // TODO Compute lazily & cache.
   }
 
   @Override
@@ -104,4 +110,5 @@ public class Source {
     }
     return result;
   }
+
 }
